@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>Lab 1: Intro to Three.js Part 1</title>
+		<style>
+			body { margin: 0; }
+			canvas { display: block; }
+		</style>
+	</head>
+	<body>
+		<script src="../three.js-master/build/three.js"></script>
+		<script>
+			// Our Javascript will go here.
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+			var renderer = new THREE.WebGLRenderer();
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+
+			// variables for the box size
+			var depth = 10;
+			var width = 20;
+			var height = 10;
+			var middleWallPos = 4;
+
+			// door variable
+			var doorMove = 0;
+
+			//walls material: 
+			var material01 = new THREE.MeshNormalMaterial();
+			// door
+			var material02 = new THREE.MeshNormalMaterial();
+			// front wall:
+			var material03 = new THREE.MeshNormalMaterial();
+
+			// geometry 1 (left wall and right wall)
+			var geometry01 = new THREE.BoxGeometry(1, height, depth);
+			// geometry 2 (top and bottom walls)
+			var geometry02 = new THREE.BoxGeometry(width, 1, depth);
+			// geometry 3 for middle walls
+			var geometry03 = new THREE.BoxGeometry(1, height/3, depth);
+			// geometry 4 for the door
+			var geometry04 = new THREE.BoxGeometry(1, height/3+1, depth);
+			// geometry 5 for the back and front walls
+			var geometry05 = new THREE.BoxGeometry(width, height, depth);
+
+
+			// a cube has geometric and material properties
+			var cube01 = new THREE.Mesh(geometry01, material01);
+			var cube02 = new THREE.Mesh(geometry02, material01);
+			var cube03 = new THREE.Mesh(geometry01, material01);
+			var cube04 = new THREE.Mesh(geometry02, material01);
+			var cube05 = new THREE.Mesh(geometry03, material01);
+			var cube06 = new THREE.Mesh(geometry03, material01);
+			var cube07 = new THREE.Mesh(geometry04, material02); // door
+			var cube08 = new THREE.Mesh(geometry05, material01); // back wall
+			var cube08 = new THREE.Mesh(geometry05, material03); // front wall
+
+			cube01.position.set( -(width/2), 0, 0);
+			cube02.position.set( 0, (height/2), 0);
+			cube03.position.set((width/2), 0, 0);
+			cube04.position.set( 0, -(height/2), 0);
+			cube05.position.set( middleWallPos, height/3, 0);
+			cube06.position.set( middleWallPos, -height/3, 0);
+			cube07.position.set( middleWallPos, 0, 0);
+			cube07.material.transparency = true;
+
+
+			scene.add(cube01); // adds the cube to the scene
+			scene.add(cube02);
+			scene.add(cube03);
+			scene.add(cube04);
+			scene.add(cube05);
+			scene.add(cube06);
+			scene.add(cube07);
+			camera.position.z = 15; // this moves the camera towards the user 5 units
+
+
+			function MouseDown(event) {
+				console.log('MouseDown');
+				doorMove = 0.02;
+			}
+
+			function MouseUp(event) {
+				console.log('MouseUp');
+				doorMove = -0.02;
+			}
+
+			document.addEventListener('mousedown', MouseDown, false);
+			document.addEventListener('mouseup', MouseUp, false);
+
+
+			function animate(){
+
+				if (cube07.position.y < 0){
+					doorMove = 0;
+					cube07.position.y = 0;
+				}
+				if (cube07.position.y > 4){
+					doorMove = 0;
+					cube07.position.y = 4;
+				}
+
+				cube07.position.y += doorMove;
+
+				requestAnimationFrame(animate);
+				renderer.render(scene, camera);
+
+			}
+
+			animate();
+
+
+		</script>
+	</body>
+</html>
