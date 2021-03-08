@@ -19,7 +19,7 @@
 			document.body.appendChild(renderer.domElement);
 
 			// variables for the box size
-			var depth = 10;
+			var depth = 4;
 			var width = 20;
 			var height = 10;
 			var middleWallPos = 4;
@@ -29,10 +29,6 @@
 
 			//walls material: 
 			var material01 = new THREE.MeshNormalMaterial();
-			// door
-			var material02 = new THREE.MeshNormalMaterial();
-			// front wall:
-			var material03 = new THREE.MeshNormalMaterial();
 
 			// geometry 1 (left wall and right wall)
 			var geometry01 = new THREE.BoxGeometry(1, height, depth);
@@ -42,8 +38,6 @@
 			var geometry03 = new THREE.BoxGeometry(1, height/3, depth);
 			// geometry 4 for the door
 			var geometry04 = new THREE.BoxGeometry(1, height/3+1, depth);
-			// geometry 5 for the back and front walls
-			var geometry05 = new THREE.BoxGeometry(width, height, depth);
 
 
 			// a cube has geometric and material properties
@@ -53,10 +47,9 @@
 			var cube04 = new THREE.Mesh(geometry02, material01);
 			var cube05 = new THREE.Mesh(geometry03, material01);
 			var cube06 = new THREE.Mesh(geometry03, material01);
-			var cube07 = new THREE.Mesh(geometry04, material02); // door
-			var cube08 = new THREE.Mesh(geometry05, material01); // back wall
-			var cube08 = new THREE.Mesh(geometry05, material03); // front wall
+			var cube07 = new THREE.Mesh(geometry04, material01); // door
 
+			// setting position of all of the walls / door
 			cube01.position.set( -(width/2), 0, 0);
 			cube02.position.set( 0, (height/2), 0);
 			cube03.position.set((width/2), 0, 0);
@@ -64,10 +57,9 @@
 			cube05.position.set( middleWallPos, height/3, 0);
 			cube06.position.set( middleWallPos, -height/3, 0);
 			cube07.position.set( middleWallPos, 0, 0);
-			cube07.material.transparency = true;
 
-
-			scene.add(cube01); // adds the cube to the scene
+			// adding walls to the scene
+			scene.add(cube01);
 			scene.add(cube02);
 			scene.add(cube03);
 			scene.add(cube04);
