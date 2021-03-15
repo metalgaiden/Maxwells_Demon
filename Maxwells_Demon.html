@@ -99,8 +99,8 @@
 			const matrix = new THREE.Matrix4();
 			const color = new THREE.Color();
 			// Spheres
-			const geometrySphere = new THREE.IcosahedronBufferGeometry( 0.075, 3 );
-			spheres = new THREE.InstancedMesh( geometrySphere, material, 100 );
+			const geometrySphere = new THREE.IcosahedronBufferGeometry( 0.3, 3 );
+			spheres = new THREE.InstancedMesh( geometrySphere, material, 50 );
 			spheres.castShadow = true;
 			spheres.receiveShadow = true;
 			scene.add( spheres );
@@ -108,21 +108,38 @@
 			let position = [];
 			let velocity = [];
 			for ( let i = 0; i < spheres.count; i ++ ) {
-				position[i] = new THREE.Vector3( Math.random() - 0.5, Math.random() * 2, Math.random() - 0.5 );
-				velocity[i] = new THREE.Vector3( (Math.random() - 0.5)*0.1, (Math.random() - 0.5)*0.1, 0.0 );
+				position[i] = new THREE.Vector3( Math.random() * 6 - 4, Math.random() * 5 - 2, 0.0);
+				velocity[i] = new THREE.Vector3( (Math.random() - 0.5)*0.05, (Math.random() - 0.5)*0.05, 0.0 );
 				matrix.setPosition(position[i]);
 				spheres.setMatrixAt( i, matrix );
 				spheres.setColorAt( i, color.setHex( 0xffffff * Math.random() ) );
 			}
-			let j = 0;
 			
 			function animate(){
 				for ( let i = 0; i < spheres.count; i ++ ) {
-					if (position[i].y >= 4 || position[i].y <= -4){
-						velocity[i].y = velocity[i].y * -1;
+					for ( let j = 0; j < spheres.count; j ++ ) {
+						if (i != j){
+							let distance = position[i].distanceTo(position[j]);
+							if (distance < 0.6){
+								let vi = velocity[i].clone();
+								let vj = velocity[j].clone();
+								let pi = position[i].clone();
+								let pj = position[j].clone();
+								position[i].lerp(position[j], -(1/(100*distance)));
+								velocity[i] = velocity[j];
+								velocity[j] = vi;
+							}
+						}
 					}
-					if (position[i].x >= 3 || position[i].x <= -9){
-						velocity[i].x = velocity[i].x * -1;
+					if (position[i].y >= 4){
+						velocity[i].y = Math.abs(velocity[i].y) * -1;
+					}if (position[i].y <= -4){
+						velocity[i].y = Math.abs(velocity[i].y);
+					}
+					if (position[i].x >= 3){
+						velocity[i].x = Math.abs(velocity[i].x) * -1;
+					}if (position[i].x <= -9){
+						velocity[i].x = Math.abs(velocity[i].x);
 					}
 					position[i].x += velocity[i].x;
 					position[i].y += velocity[i].y;
