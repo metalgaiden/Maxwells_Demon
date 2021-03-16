@@ -28,6 +28,11 @@
 			dirLight.shadow.camera.zoom = 2;
 			scene.add( dirLight );
 
+			// Counters for Calculations
+			var leftTotal;
+			var leftDens;
+			var lScale = 1;
+			var rScale = 1;
 
 			// variables for the box size
 			var depth = 4;
@@ -49,7 +54,9 @@
 			var geometry03 = new THREE.BoxGeometry(1, height/3, depth);
 			// geometry 4 for the door
 			var geometry04 = new THREE.BoxGeometry(1, height/3+1, depth);
-
+			// geometry for the Equilibrium bar
+			var geometry05 = new THREE.BoxGeometry(10, 1, 0.5);
+			var geometry06 = new THREE.BoxGeometry(10, 1, 0.5);
 
 			// a cube has geometric and material properties
 			var cube01 = new THREE.Mesh(geometry01, material01);
@@ -59,6 +66,8 @@
 			var cube05 = new THREE.Mesh(geometry03, material01);
 			var cube06 = new THREE.Mesh(geometry03, material01);
 			var cube07 = new THREE.Mesh(geometry04, material01); // door
+			var cube08 = new THREE.Mesh(geometry05, material01); // Equ Bar Left
+			var cube09 = new THREE.Mesh(geometry06, material01); // Equ Bar Right
 
 			// setting position of all of the walls / door
 			cube01.position.set( -(width/2), 0, 0);
@@ -68,6 +77,8 @@
 			cube05.position.set( middleWallPos, height/3, 0);
 			cube06.position.set( middleWallPos, -height/3, 0);
 			cube07.position.set( middleWallPos, 0, 0);
+			cube08.position.set( 0, 8, 0);
+			cube09.position.set( 0, 10, 0);
 
 			// adding walls to the scene
 			scene.add(cube01);
@@ -77,14 +88,16 @@
 			scene.add(cube05);
 			scene.add(cube06);
 			scene.add(cube07);
+			scene.add(cube08);
+			scene.add(cube09);
 			camera.position.z = 15; // this moves the camera towards the user 5 units
 
-
+			// when the mouse is being clicked door goes up
 			function MouseDown(event) {
 				console.log('MouseDown');
 				doorMove = 0.02;
 			}
-
+			// when the mouse is left go door goes back down
 			function MouseUp(event) {
 				console.log('MouseUp');
 				doorMove = -0.02;
@@ -115,6 +128,48 @@
 				spheres.setColorAt( i, color.setHex( 0xffffff * Math.random() ) );
 			}
 			
+			// recalculates the density in the left boxes
+			function calcDensity(){
+				// reset the left total
+				leftTotal = 0.0;
+				// goes through all spheres x positions and checks if on left side
+				for (let i = 0; i < spheres.count; i++){
+					if (position[i].x <= 3){ // 3 taken from line "if (position[i].x >= 3){" below
+						leftTotal ++;
+					}
+				}
+				// Get the density of each side by dividing the number of particles by the volume of the cubes
+				leftDens = leftTotal / spheres.count;
+				// var widthL = cube08.geometry.parameters.width * lScale;
+				// var widthR = cube09.geometry.parameters.width * rScale;
+				// console.log("geometry05.width = " + widthL);
+				// console.log("geometry06.width = " + widthR);
+
+				if (leftDens < 0.1){
+					// left is 10 % , right is 90 %
+					cube08.scale.x = 0.1;
+					cube09.scale.x = 1;
+				}
+				else if (leftDens < 0.25){
+					cube08.scale.x = 0.25;
+					cube09.scale.x = 0.75;
+
+				}
+				else if (leftDens < 0.5){
+					cube08.scale.x = 0.5;
+					cube09.scale.x = 0.5;
+				}
+				else if (leftDens < 0.75){
+					cube08.scale.x = 0.75;
+					cube09.scale.x = 0.25;
+				}
+				else if (leftDens < 1){
+					cube08.scale.x = 1;
+					cube09.scale.x = 0.1;
+				}
+			}
+
+
 			function animate(){
 				for ( let i = 0; i < spheres.count; i ++ ) {
 					for ( let j = 0; j < spheres.count; j ++ ) {
@@ -150,6 +205,8 @@
 				}
 				spheres.instanceMatrix.needsUpdate = true;
 
+
+				// Checks the doors position, keeps it from running off
 				if (cube07.position.y < 0){
 					doorMove = 0;
 					cube07.position.y = 0;
@@ -158,8 +215,11 @@
 					doorMove = 0;
 					cube07.position.y = 4;
 				}
-
+				// updates the doors position
 				cube07.position.y += doorMove;
+
+				calcDensity();
+				
 
 				requestAnimationFrame(animate);
 				renderer.render(scene, camera);
