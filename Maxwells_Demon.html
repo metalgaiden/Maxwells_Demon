@@ -39,6 +39,8 @@
 			var width = 20;
 			var height = 10;
 			var middleWallPos = 4;
+			// var leftVol = depth * height * (width / 2 + middleWallPos) / 10;
+			// var rightVol = depth * height * (width / 2 - middleWallPos) / 10;
 
 			// door variable
 			var doorMove = 0;
@@ -139,31 +141,29 @@
 					}
 				}
 				// Get the density of each side by dividing the number of particles by the volume of the cubes
-				leftDens = leftTotal / spheres.count;
-				// var widthL = cube08.geometry.parameters.width * lScale;
-				// var widthR = cube09.geometry.parameters.width * rScale;
-				// console.log("geometry05.width = " + widthL);
-				// console.log("geometry06.width = " + widthR);
+				// leftDens = leftTotal / leftVol;
+				// rightTotal = spheres.count - leftTotal;
+				// rightDens = rightTotal / rightVol;
 
-				if (leftDens < 0.1){
+				if (leftTotal <= 11){
 					// left is 10 % , right is 90 %
 					cube08.scale.x = 0.1;
 					cube09.scale.x = 1;
 				}
-				else if (leftDens < 0.25){
+				else if (leftTotal <= 22){
 					cube08.scale.x = 0.25;
 					cube09.scale.x = 0.75;
 
 				}
-				else if (leftDens < 0.5){
+				else if (leftTotal <= 35){
 					cube08.scale.x = 0.5;
 					cube09.scale.x = 0.5;
 				}
-				else if (leftDens < 0.75){
+				else if (leftTotal <= 44){
 					cube08.scale.x = 0.75;
 					cube09.scale.x = 0.25;
 				}
-				else if (leftDens < 1){
+				else if (leftTotal <= 50){
 					cube08.scale.x = 1;
 					cube09.scale.x = 0.1;
 				}
