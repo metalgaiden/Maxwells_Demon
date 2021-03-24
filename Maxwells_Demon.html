@@ -123,8 +123,8 @@
 			let position = [];
 			let velocity = [];
 			for ( let i = 0; i < spheres.count; i ++ ) {
-				position[i] = new THREE.Vector3( Math.random() * 6 - 4, Math.random() * 5 - 2, 0.0);
-				velocity[i] = new THREE.Vector3( (Math.random() - 0.5)*0.05, (Math.random() - 0.5)*0.05, 0.0 );
+				position[i] = new THREE.Vector3( Math.random()*5, Math.random() * 5 - 2, 0.0);
+				velocity[i] = new THREE.Vector3( (Math.random() - 0.5)*0.3, (Math.random() - 0.5)*0.3, 0.0 );
 				matrix.setPosition(position[i]);
 				spheres.setMatrixAt( i, matrix );
 				spheres.setColorAt( i, color.setHex( 0xffffff * Math.random() ) );
@@ -168,44 +168,82 @@
 					cube09.scale.x = 0.1;
 				}
 			}
+			let calculated = {};
 
 
 			function animate(){
 				for ( let i = 0; i < spheres.count; i ++ ) {
 					for ( let j = 0; j < spheres.count; j ++ ) {
-						if (i != j){
+						if (i != j && calculated[i] != j){
 							let distance = position[i].distanceTo(position[j]);
 							if (distance < 0.6){
+								/*
 								let temp = velocity[i].clone();
 								velocity[i] = velocity[j];
 								velocity[j] = temp;
-
-								/*
-								let nx = (position[i].x - position[j].x);
-								let ny = (position[i].y - position[j].y);
-								let kx = velocity[i].x - velocity[j].x;
-								let ky = velocity[i].y = velocity[j].y;
-								let p = 2.0 * (nx * kx + ny * ky);
-								velocity[i].x = velocity[i].x - p * 1 * nx;
-								velocity[i].y = velocity[i].y - p * 1 * ny;
-								velocity[j].x = velocity[j].x + p * 1 * nx;
-								velocity[j].y = velocity[j].y + p * 1 * ny;
 								*/
 
 								position[i].lerp(position[j], -(1/(100*distance)));
 								position[j].lerp(position[i], -(1/(100*distance)));
+
+								calculated[j] = i;
+
+								distance = Math.sqrt((position[i].x - position[j].x)*(position[i].x - position[j].x) + (position[i].y - position[j].y)*(position[i].y - position[j].y));
+
+								let mass1 = .5;
+								let mass2 = .5;
+
+								let nx = (position[j].x - position[i].x) / distance;
+								let ny = (position[j].y - position[i].y) / distance;
+
+								let tx = -ny;
+								let ty = nx;
+
+								let dpTan1 = velocity[i].x * tx + velocity[i].y * ty;
+								let dpTan2 = velocity[j].x * tx + velocity[j].y * ty;
+
+								let dpNorm1 = velocity[i].x * nx + velocity[i].y * ny;
+								let dpNorm2 = velocity[j].x * nx + velocity[j].y * ny;
+
+								let m1 = (dpNorm1 * (mass1 - mass2) + 2.0 * mass2 * dpNorm2) / (mass1 + mass2);
+								let m2 = (dpNorm2 * (mass2 - mass1) + 2.0 * mass1 * dpNorm1) / (mass1 + mass2);
+
+								velocity[i].x = tx * dpTan1 + nx * m1;
+								velocity[i].y = ty * dpTan1 + ny * m1;
+								velocity[j].x = tx * dpTan2 + nx * m2;
+								velocity[j].y = ty * dpTan2 + ny * m2;
+
+								/*
+								let normal = new THREE.Vector3((position[j].x - position[i].x), (position[j].y - position[i].y), 0.0);
+								normal.normalize;
+								let m1 = .5;
+								let m2 = .5;
+								let nx = normal.x;
+								let ny = normal.y;
+								let kx = velocity[i].x - velocity[j].x;
+								let ky = velocity[i].y - velocity[j].y;
+								let p = 2.0 * (nx * kx + ny * ky)/(m1 + m2);
+								velocity[i].x = velocity[i].x - p * m1 * nx;
+								velocity[i].y = velocity[i].y - p * m1 * ny;
+								velocity[j].x = velocity[j].x + p * m2 * nx;
+								velocity[j].y = velocity[j].y + p * m2 * ny;
+								*/
 							}
 						}
 					}
 					if (position[i].y >= 4){
 						velocity[i].y = Math.abs(velocity[i].y) * -1;
+						position[i].y = 4;
 					}if (position[i].y <= -4){
 						velocity[i].y = Math.abs(velocity[i].y);
+						position[i].y = -4;
 					}
 					if (position[i].x >= 9){
 						velocity[i].x = Math.abs(velocity[i].x) * -1;
+						position[i].x = 9;
 					}if (position[i].x <= -9){
 						velocity[i].x = Math.abs(velocity[i].x);
+						position[i].x = -9;
 					}
 					if (position[i].x > 3 && position[i].x < 5){
 						if (position[i].y > cube07.position.y - 2.5 || position[i].y < -1.5){
@@ -218,10 +256,11 @@
 					}
 					position[i].x += velocity[i].x;
 					position[i].y += velocity[i].y;
-	 
+					
 					matrix.setPosition(position[i]);
 					spheres.setMatrixAt( i, matrix );
 				}
+				calculated = {};
 				spheres.instanceMatrix.needsUpdate = true;
 
 
