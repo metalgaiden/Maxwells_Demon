@@ -16,13 +16,13 @@
 			width: 100%;
 			text-align: center;
 			z-index: 100;
-			display:block;">Right Pressure</div>
+			display:block;">Right Density</div>
 		<div style="color: white; position: absolute;
 			top: 100px;
 			width: 100%;
 			text-align: center;
 			z-index: 100;
-			display:block;">Left Pressure</div>
+			display:block;">Left Density</div>
 		<!-- Javascript -->
 		<script>
 			// Our Javascript will go here.
@@ -154,11 +154,16 @@
 						leftTotal ++;
 					}
 				}
+				let rightTotal = spheres.count - leftTotal;
 				// Get the density of each side by dividing the number of particles by the volume of the cubes
 				// leftDens = leftTotal / leftVol;
 				// rightTotal = spheres.count - leftTotal;
 				// rightDens = rightTotal / rightVol;
 
+				cube08.scale.x = cube08.scale.x + (leftTotal/spheres.count/2.5 - cube08.scale.x)*.03;
+				cube09.scale.x = cube09.scale.x + (rightTotal/spheres.count - cube09.scale.x)*.03;
+
+				/*
 				if (leftTotal <= 11){
 					// left is 10 % , right is 90 %
 					cube08.scale.x = 0.1;
@@ -181,6 +186,7 @@
 					cube08.scale.x = 1;
 					cube09.scale.x = 0.1;
 				}
+				*/
 			}
 			let calculated = {};
 
